@@ -33,28 +33,22 @@ namespace Vidly.Controllers
         [Route("Customers/Details/{id}")]
         public ActionResult Details(int id)
         {
-            string customerName = "";
-            var customerlist = _context.Customers.ToList();
+            var customerlist = _context.Customers.Include(c => c.MembershipType).ToList();
 
-            foreach (var customer in customerlist)
-            {
-                if (customer.Id == id)
-                {
-                    customerName = customer.Name;
-                    break;
-                }
-            }
-
-            if (customerName == "")
+            if (customerlist == null)
             {
                 return HttpNotFound();
             }
             else
             {
+                var customer = customerlist.Find(c => c.Id == id);
+
                 var viewModel = new CustomerDetailViewModel
                 {
-                    Name = customerName,
-                    Id = id
+                    Name = customer.Name,
+                    MembershipType = customer.MembershipType,
+                    Id = id,
+                    BirthDate = customer.Birthdate
                 };
 
                 return View(viewModel);
